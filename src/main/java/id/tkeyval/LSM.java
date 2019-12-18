@@ -5,19 +5,19 @@ import java.util.Map;
 
 public class LSM
 {
-  private Map<Key, byte[]> map;
+  private Map<ImmutableKey, byte[]> map;
 
   public LSM()
   {
     this.map = new HashMap<>();
   }
 
-  void putValue(Key key, byte[] value)
+  void putValue(ImmutableKey key, byte[] value)
   {
     map.put(key, value);
   }
 
-  byte[] getValue(Key key)
+  byte[] getValue(ImmutableKey key)
   {
     return map.get(key);
   }
