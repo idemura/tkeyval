@@ -4,7 +4,7 @@ import static id.tkeyval.Checks.check;
 
 public class AaTree
 {
-  private static class Node
+  static class Node
   {
     private ImmutableKey key;
     private byte[] value;
@@ -12,11 +12,30 @@ public class AaTree
     private Node r;
     private int level;
 
-    private Node() {}
     private Node(ImmutableKey key, byte[] value)
     {
       this.key = key;
       this.value = value;
+    }
+
+    ImmutableKey getKey()
+    {
+      return key;
+    }
+
+    int getLevel()
+    {
+      return level;
+    }
+
+    Node getL()
+    {
+      return l;
+    }
+
+    Node getR()
+    {
+      return r;
     }
   }
 
@@ -48,9 +67,14 @@ public class AaTree
     return null;
   }
 
-  public void validate()
+  void validate()
   {
     validateRec(root);
+  }
+
+  Node getRoot()
+  {
+    return root;
   }
 
   private static Node skew(Node n)
