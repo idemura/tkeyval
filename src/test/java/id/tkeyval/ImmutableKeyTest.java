@@ -3,6 +3,7 @@ package id.tkeyval;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ImmutableKeyTest
 {
@@ -26,5 +27,13 @@ class ImmutableKeyTest
     bytes[1] = 0;
     bytes[2] = 0;
     assertEquals("Key(AQID)", k.toString());
+  }
+
+  @Test
+  void compare()
+  {
+    var k1 = ImmutableKey.ofString("abc");
+    var k2 = ImmutableKey.ofString("aba");
+    assertTrue(k1.compareTo(k2) > 0);
   }
 }
