@@ -6,7 +6,7 @@ import java.util.Base64;
 
 import static id.tkeyval.Checks.check;
 
-public class ImmutableKey implements Comparable<ImmutableKey>
+public final class ImmutableKey implements Comparable<ImmutableKey>
 {
   private final byte[] key;
   private final int keyHashCode;

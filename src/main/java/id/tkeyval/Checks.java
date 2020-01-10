@@ -1,7 +1,9 @@
 package id.tkeyval;
 
-public class Checks
+public final class Checks
 {
+  private Checks() {}
+
   public static void check(boolean condition)
   {
     if (!condition) {

@@ -2,9 +2,9 @@ package id.tkeyval;
 
 import static id.tkeyval.Checks.check;
 
-public class AaTree implements Tree
+public final class AaTree implements Tree
 {
-  static class Node
+  static final class Node
   {
     private ImmutableKey key;
     private byte[] value;
