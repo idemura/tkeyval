@@ -1,33 +1,30 @@
 package id.tkeyval;
 
-import java.util.Map;
-import java.util.TreeMap;
-
 import static id.tkeyval.Checks.check;
 
 public class KeyValue
 {
-  private Map<ImmutableKey, byte[]> map;
+  private Tree map;
 
   public KeyValue()
   {
-    this.map = new TreeMap<>();
+    this.map = new AaTree();
   }
 
-  void putKey(ImmutableKey key, byte[] value)
+  public void put(ImmutableKey key, byte[] value)
   {
     check(value != null);
     map.put(key, value);
   }
 
-  byte[] getKey(ImmutableKey key)
-  {
-    return map.get(key);
-  }
-
-  void removeKey(ImmutableKey key)
+  public void remove(ImmutableKey key)
   {
     // Put a tombstone
     map.put(key, null);
+  }
+
+  public byte[] get(ImmutableKey key)
+  {
+    return map.get(key);
   }
 }

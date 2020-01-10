@@ -14,25 +14,25 @@ public class AaTreeTest
     assertEquals(0, t.size());
     var k0 = ImmutableKey.ofString("nm");
     var v0 = new byte[]{1, 2};
-    t.putKey(k0, v0);
+    t.put(k0, v0);
     t.validate();
     assertEquals(1, t.size());
-    assertArrayEquals(v0, t.getKey(k0));
+    assertArrayEquals(v0, t.get(k0));
 
     var k1 = ImmutableKey.ofString("kp");
     var v1 = new byte[]{1, 0};
-    t.putKey(k1, v1);
+    t.put(k1, v1);
     t.validate();
-    assertArrayEquals(v0, t.getKey(k0));
-    assertArrayEquals(v1, t.getKey(k1));
+    assertArrayEquals(v0, t.get(k0));
+    assertArrayEquals(v1, t.get(k1));
 
     var k2 = ImmutableKey.ofString("ka");
     var v2 = new byte[]{1, 5};
-    t.putKey(k2, v2);
+    t.put(k2, v2);
     t.validate();
-    assertArrayEquals(v0, t.getKey(k0));
-    assertArrayEquals(v1, t.getKey(k1));
-    assertArrayEquals(v2, t.getKey(k2));
+    assertArrayEquals(v0, t.get(k0));
+    assertArrayEquals(v1, t.get(k1));
+    assertArrayEquals(v2, t.get(k2));
     {
       var r = t.getRoot();
       assertEquals(1, r.getLevel());

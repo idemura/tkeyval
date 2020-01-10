@@ -2,7 +2,7 @@ package id.tkeyval;
 
 import static id.tkeyval.Checks.check;
 
-public class AaTree
+public class AaTree implements Tree
 {
   static class Node
   {
@@ -44,17 +44,20 @@ public class AaTree
 
   public AaTree() {}
 
+  @Override
   public int size()
   {
     return size;
   }
 
-  public void putKey(ImmutableKey key, byte[] value)
+  @Override
+  public void put(ImmutableKey key, byte[] value)
   {
-    root = putKeyRec(root, new Node(key, value));
+    root = putRec(root, new Node(key, value));
   }
 
-  public byte[] getKey(ImmutableKey key)
+  @Override
+  public byte[] get(ImmutableKey key)
   {
     var p = root;
     while (p != null) {
@@ -100,7 +103,7 @@ public class AaTree
     return n;
   }
 
-  private Node putKeyRec(Node node, Node newNode)
+  private Node putRec(Node node, Node newNode)
   {
     if (node == null) {
       size++;
@@ -112,9 +115,9 @@ public class AaTree
       return node;
     }
     if (cmp < 0) {
-      node.l = putKeyRec(node.l, newNode);
+      node.l = putRec(node.l, newNode);
     } else {
-      node.r = putKeyRec(node.r, newNode);
+      node.r = putRec(node.r, newNode);
     }
     return split(skew(node));
   }

@@ -1,7 +1,4 @@
-package id.tkeyval.memory_io;
-
-import id.tkeyval.IoFile;
-import id.tkeyval.IoFileFactory;
+package id.tkeyval.io;
 
 public class MemoryFileFactory implements IoFileFactory
 {

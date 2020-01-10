@@ -1,4 +1,4 @@
-package id.tkeyval;
+package id.tkeyval.io;
 
 public interface IoFile
 {

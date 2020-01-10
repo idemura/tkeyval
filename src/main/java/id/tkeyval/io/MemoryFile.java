@@ -1,6 +1,4 @@
-package id.tkeyval.memory_io;
-
-import id.tkeyval.IoFile;
+package id.tkeyval.io;
 
 public class MemoryFile implements IoFile
 {
