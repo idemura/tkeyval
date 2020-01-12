@@ -10,4 +10,11 @@ public final class Checks
       throw new CheckException();
     }
   }
+
+  public static void check(boolean condition, String description)
+  {
+    if (!condition) {
+      throw new CheckException(description);
+    }
+  }
 }

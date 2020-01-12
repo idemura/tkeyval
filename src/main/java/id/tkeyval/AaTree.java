@@ -129,19 +129,19 @@ public final class AaTree implements Tree
     }
     validateRec(node.l);
     validateRec(node.r);
-    var l = node.l;
-    if (l != null) {
-      check(l.level == node.level || l.level == node.level - 1);
-      if (l.l != null) {
-        check(node.level > l.l.level);
-      }
+    var deepL = getLevelMinusOne(node, true);
+    check(deepL == node.l);
+    var deepR = getLevelMinusOne(node, false);
+    check(deepR == node.r || deepR == node.r.r);
+  }
+
+  private static Node getLevelMinusOne(Node start, boolean takeLeft)
+  {
+    var node = start;
+    while (node != null && node.level == start.level) {
+      node = takeLeft? node.l: node.r;
     }
-    var r = node.r;
-    if (r != null) {
-      check(r.level == node.level || r.level == node.level - 1);
-      if (r.r != null && r.r.r != null) {
-        check(node.level > r.r.r.level);
-      }
-    }
+    check(node == null || node.level == start.level - 1, "level condition");
+    return node;
   }
 }
