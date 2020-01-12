@@ -3,6 +3,6 @@ package id.tkeyval;
 public interface Tree
 {
   int size();
-  void put(ImmutableKey key, byte[] value);
-  byte[] get(ImmutableKey key);
+  void put(ImmutableKey key, Object value);
+  Object get(ImmutableKey key);
 }

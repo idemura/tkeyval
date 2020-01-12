@@ -7,12 +7,12 @@ public final class AaTree implements Tree
   static final class Node
   {
     private ImmutableKey key;
-    private byte[] value;
+    private Object value;
     private Node l;
     private Node r;
     private int level;
 
-    private Node(ImmutableKey key, byte[] value)
+    Node(ImmutableKey key, Object value)
     {
       this.key = key;
       this.value = value;
@@ -51,13 +51,13 @@ public final class AaTree implements Tree
   }
 
   @Override
-  public void put(ImmutableKey key, byte[] value)
+  public void put(ImmutableKey key, Object value)
   {
     root = putRec(root, new Node(key, value));
   }
 
   @Override
-  public byte[] get(ImmutableKey key)
+  public Object get(ImmutableKey key)
   {
     var p = root;
     while (p != null) {

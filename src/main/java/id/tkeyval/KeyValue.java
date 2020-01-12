@@ -11,7 +11,7 @@ public class KeyValue
     this.map = new AaTree();
   }
 
-  public void put(ImmutableKey key, byte[] value)
+  public void put(ImmutableKey key, Object value)
   {
     check(value != null);
     map.put(key, value);
@@ -23,7 +23,7 @@ public class KeyValue
     map.put(key, null);
   }
 
-  public byte[] get(ImmutableKey key)
+  public Object get(ImmutableKey key)
   {
     return map.get(key);
   }
