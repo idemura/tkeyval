@@ -8,8 +8,8 @@ public final class AaTree implements Tree
   {
     private ImmutableKey key;
     private Object value;
-    private Node l;
-    private Node r;
+    private Node L;
+    private Node R;
     private int level;
 
     Node(ImmutableKey key, Object value)
@@ -30,12 +30,12 @@ public final class AaTree implements Tree
 
     Node getL()
     {
-      return l;
+      return L;
     }
 
     Node getR()
     {
-      return r;
+      return R;
     }
   }
 
@@ -65,7 +65,7 @@ public final class AaTree implements Tree
       if (cmp == 0) {
         return p.value;
       }
-      p = cmp < 0? p.l: p.r;
+      p = cmp < 0? p.L : p.R;
     }
     return null;
   }
@@ -82,10 +82,10 @@ public final class AaTree implements Tree
 
   private static Node skew(Node n)
   {
-    if (n.l != null && n.l.level == n.level) {
-      var l = n.l;
-      n.l = l.r;
-      l.r = n;
+    if (n.L != null && n.L.level == n.level) {
+      var l = n.L;
+      n.L = l.R;
+      l.R = n;
       return l;
     }
     return n;
@@ -93,10 +93,10 @@ public final class AaTree implements Tree
 
   private static Node split(Node n)
   {
-    if (n.r != null && n.r.r != null && n.level == n.r.r.level) {
-      var r = n.r;
-      n.r = r.l;
-      r.l = n;
+    if (n.R != null && n.R.R != null && n.level == n.R.R.level) {
+      var r = n.R;
+      n.R = r.L;
+      r.L = n;
       r.level++;
       return r;
     }
@@ -115,9 +115,9 @@ public final class AaTree implements Tree
       return node;
     }
     if (cmp < 0) {
-      node.l = putRec(node.l, newNode);
+      node.L = putRec(node.L, newNode);
     } else {
-      node.r = putRec(node.r, newNode);
+      node.R = putRec(node.R, newNode);
     }
     return split(skew(node));
   }
@@ -127,19 +127,19 @@ public final class AaTree implements Tree
     if (node == null) {
       return;
     }
-    validateRec(node.l);
-    validateRec(node.r);
+    validateRec(node.L);
+    validateRec(node.R);
     var deepL = getLevelMinusOne(node, true);
-    check(deepL == node.l);
+    check(deepL == node.L);
     var deepR = getLevelMinusOne(node, false);
-    check(deepR == node.r || deepR == node.r.r);
+    check(deepR == node.R || deepR == node.R.R);
   }
 
   private static Node getLevelMinusOne(Node start, boolean takeLeft)
   {
     var node = start;
     while (node != null && node.level == start.level) {
-      node = takeLeft? node.l: node.r;
+      node = takeLeft? node.L : node.R;
     }
     check(node == null || node.level == start.level - 1, "level condition");
     return node;
