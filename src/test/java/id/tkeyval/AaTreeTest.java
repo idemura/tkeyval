@@ -44,42 +44,42 @@ public class AaTreeTest
     var aaTree = new AaTree();
     var t = new AutoValidateTree(aaTree);
     t.put(ImmutableKey.ofString("80"), "v0");
-    wrap(aaTree.root()).isKey("80").isLevel(0);
+    new AaNodeWrapper(aaTree.root()).isKey("80").isLevel(0);
 
     // Skew
     t.put(ImmutableKey.ofString("50"), "v1");
-    wrap(aaTree.root()).isKey("50").isLevel(0)
-        .withR((r) -> wrap(r).isKey("80").isLevel(0));
+    new AaNodeWrapper(aaTree.root()).isKey("50").isLevel(0)
+        .withR((r) -> r.isKey("80").isLevel(0));
 
     // Noop
     t.put(ImmutableKey.ofString("40"), "v2");
-    wrap(aaTree.root()).isKey("50").isLevel(1)
-        .withL((l) -> wrap(l).isKey("40").isLevel(0))
-        .withR((r) -> wrap(r).isKey("80").isLevel(0));
+    new AaNodeWrapper(aaTree.root()).isKey("50").isLevel(1)
+        .withL((l) -> l.isKey("40").isLevel(0))
+        .withR((r) -> r.isKey("80").isLevel(0));
 
     // Skew+Split
     t.put(ImmutableKey.ofString("30"), "v3");
-    wrap(aaTree.root()).isKey("50").isLevel(1)
-        .withL((l) -> wrap(l).isKey("30").isLevel(0)
-            .withR((lr) -> wrap(lr).isKey("40").isLevel(0)))
-        .withR((r) -> wrap(r).isKey("80").isLevel(0));
+    new AaNodeWrapper(aaTree.root()).isKey("50").isLevel(1)
+        .withL((l) -> l.isKey("30").isLevel(0)
+            .withR((lr) -> lr.isKey("40").isLevel(0)))
+        .withR((r) -> r.isKey("80").isLevel(0));
 
     t.put(ImmutableKey.ofString("20"), "v4");
-    wrap(aaTree.root()).isKey("30").isLevel(1)
-        .withL((l) -> wrap(l).isKey("20").isLevel(0))
-        .withR((r) -> wrap(r).isKey("50").isLevel(1)
-            .withL((rl) -> wrap(rl).isKey("40").isLevel(0))
-            .withR((rr) -> wrap(rr).isKey("80").isLevel(0)));
+    new AaNodeWrapper(aaTree.root()).isKey("30").isLevel(1)
+        .withL((l) -> l.isKey("20").isLevel(0))
+        .withR((r) -> r.isKey("50").isLevel(1)
+            .withL((rl) -> rl.isKey("40").isLevel(0))
+            .withR((rr) -> rr.isKey("80").isLevel(0)));
 
     t.put(ImmutableKey.ofString("60"), "v5");
     t.put(ImmutableKey.ofString("70"), "v6");
-    wrap(aaTree.root()).isKey("50").isLevel(2)
-        .withL((l) -> wrap(l).isKey("30").isLevel(1)
-            .withL((ll) -> wrap(ll).isKey("20").isLevel(0))
-            .withR((lr) -> wrap(lr).isKey("40").isLevel(0)))
-        .withR((r) -> wrap(r).isKey("70").isLevel(1)
-            .withL((rl) -> wrap(rl).isKey("60").isLevel(0))
-            .withR((rr) -> wrap(rr).isKey("80").isLevel(0)));
+    new AaNodeWrapper(aaTree.root()).isKey("50").isLevel(2)
+        .withL((l) -> l.isKey("30").isLevel(1)
+            .withL((ll) -> ll.isKey("20").isLevel(0))
+            .withR((lr) -> lr.isKey("40").isLevel(0)))
+        .withR((r) -> r.isKey("70").isLevel(1)
+            .withL((rl) -> rl.isKey("60").isLevel(0))
+            .withR((rr) -> rr.isKey("80").isLevel(0)));
   }
 
   @Test
@@ -125,21 +125,16 @@ public class AaTreeTest
       return this;
     }
 
-    AaNodeWrapper withL(Consumer<AaTree.AaNode> consumer)
+    AaNodeWrapper withL(Consumer<AaNodeWrapper> consumer)
     {
-      consumer.accept(node.getL());
+      consumer.accept(new AaNodeWrapper(node.getL()));
       return this;
     }
 
-    AaNodeWrapper withR(Consumer<AaTree.AaNode> consumer)
+    AaNodeWrapper withR(Consumer<AaNodeWrapper> consumer)
     {
-      consumer.accept(node.getR());
+      consumer.accept(new AaNodeWrapper(node.getR()));
       return this;
     }
-  }
-
-  private AaNodeWrapper wrap(AaTree.AaNode node)
-  {
-    return new AaNodeWrapper(node);
   }
 }
