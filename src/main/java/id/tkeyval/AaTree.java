@@ -39,7 +39,7 @@ public final class AaTree implements Tree
     @Override
     public String toString()
     {
-      return "AaNode(" + key + " value=" + value + ")";
+      return "AaNode(" + key + " level=" + level + ")";
     }
 
     int getLevel()
@@ -80,14 +80,15 @@ public final class AaTree implements Tree
   }
 
   @Override
-  public AaNode getRoot()
+  public AaNode root()
   {
     return root;
   }
 
-  // Validate AA tree specific properties
-  void validate()
+  @Override
+  public void validate()
   {
+    TreeFuncs.checkBinarySearchTree(this);
     validateRec(root);
   }
 
@@ -144,6 +145,9 @@ public final class AaTree implements Tree
     check(deepL == node.L);
     var deepR = getLevelMinusOne(node, false);
     check(deepR == node.R || deepR == node.R.R);
+    if (node.L == null && node.R == null) {
+      check(node.level == 0);
+    }
   }
 
   private static AaNode getLevelMinusOne(AaNode start, boolean takeLeft)

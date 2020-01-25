@@ -2,60 +2,144 @@ package id.tkeyval;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import java.util.function.Consumer;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class AaTreeTest
 {
   @Test
-  public void basic()
+  public void testPutGetReplaceSize()
   {
-    var t = new AaTree();
+    var aaTree = new AaTree();
+    var t = new AutoValidateTree(aaTree);
     assertEquals(0, t.size());
-    var k0 = ImmutableKey.ofString("nm");
-    t.put(k0, "v0");
-    t.validate();
+    t.put(ImmutableKey.ofString("80"), "v0");
     assertEquals(1, t.size());
-    assertEquals("v0", t.get(k0));
-    assertArrayEquals(TreeFuncs.infixWalk(t), keysOf("nm"));
-    TreeFuncs.checkBst(t);
-
-    var k1 = ImmutableKey.ofString("kp");
-    t.put(k1, "v1");
-    t.validate();
+    t.put(ImmutableKey.ofString("50"), "v1");
     assertEquals(2, t.size());
-    assertEquals("v0", t.get(k0));
-    assertEquals("v1", t.get(k1));
-    assertArrayEquals(TreeFuncs.infixWalk(t), keysOf("kp", "nm"));
-    TreeFuncs.checkBst(t);
-
-    var k2 = ImmutableKey.ofString("ka");
-    t.put(k2, "v2");
-    t.validate();
+    t.put(ImmutableKey.ofString("40"), "v2");
     assertEquals(3, t.size());
-    assertEquals("v0", t.get(k0));
-    assertEquals("v1", t.get(k1));
-    assertEquals("v2", t.get(k2));
-    assertArrayEquals(TreeFuncs.infixWalk(t), keysOf("kp", "ka", "nm"));
-    TreeFuncs.checkBst(t);
 
+    assertEquals("v0", t.get(ImmutableKey.ofString("80")));
+    assertEquals("v1", t.get(ImmutableKey.ofString("50")));
+    assertEquals("v2", t.get(ImmutableKey.ofString("40")));
+
+    // Replace with new values
+    t.put(ImmutableKey.ofString("80"), "z0");
+    assertEquals(3, t.size());
+    t.put(ImmutableKey.ofString("50"), "z1");
+    assertEquals(3, t.size());
+    t.put(ImmutableKey.ofString("40"), "z2");
+    assertEquals(3, t.size());
+
+    assertEquals("z0", t.get(ImmutableKey.ofString("80")));
+    assertEquals("z1", t.get(ImmutableKey.ofString("50")));
+    assertEquals("z2", t.get(ImmutableKey.ofString("40")));
+  }
+
+  @Test
+  public void testPut()
+  {
+    var aaTree = new AaTree();
+    var t = new AutoValidateTree(aaTree);
+    t.put(ImmutableKey.ofString("80"), "v0");
+    wrap(aaTree.root()).isKey("80").isLevel(0);
+
+    // Skew
+    t.put(ImmutableKey.ofString("50"), "v1");
+    wrap(aaTree.root()).isKey("50").isLevel(0)
+        .withR((r) -> wrap(r).isKey("80").isLevel(0));
+
+    // Noop
+    t.put(ImmutableKey.ofString("40"), "v2");
+    wrap(aaTree.root()).isKey("50").isLevel(1)
+        .withL((l) -> wrap(l).isKey("40").isLevel(0))
+        .withR((r) -> wrap(r).isKey("80").isLevel(0));
+
+    // Skew+Split
+    t.put(ImmutableKey.ofString("30"), "v3");
+    wrap(aaTree.root()).isKey("50").isLevel(1)
+        .withL((l) -> wrap(l).isKey("30").isLevel(0)
+            .withR((lr) -> wrap(lr).isKey("40").isLevel(0)))
+        .withR((r) -> wrap(r).isKey("80").isLevel(0));
+
+    t.put(ImmutableKey.ofString("20"), "v4");
+    wrap(aaTree.root()).isKey("30").isLevel(1)
+        .withL((l) -> wrap(l).isKey("20").isLevel(0))
+        .withR((r) -> wrap(r).isKey("50").isLevel(1)
+            .withL((rl) -> wrap(rl).isKey("40").isLevel(0))
+            .withR((rr) -> wrap(rr).isKey("80").isLevel(0)));
+
+    t.put(ImmutableKey.ofString("60"), "v5");
+    t.put(ImmutableKey.ofString("70"), "v6");
+    wrap(aaTree.root()).isKey("50").isLevel(2)
+        .withL((l) -> wrap(l).isKey("30").isLevel(1)
+            .withL((ll) -> wrap(ll).isKey("20").isLevel(0))
+            .withR((lr) -> wrap(lr).isKey("40").isLevel(0)))
+        .withR((r) -> wrap(r).isKey("70").isLevel(1)
+            .withL((rl) -> wrap(rl).isKey("60").isLevel(0))
+            .withR((rr) -> wrap(rr).isKey("80").isLevel(0)));
+  }
+
+  @Test
+  public void testGet()
+  {
+    var aaTree = new AaTree();
+    var t = new AutoValidateTree(aaTree);
+    t.put(ImmutableKey.ofString("80"), "v0");
+    t.put(ImmutableKey.ofString("50"), "v1");
+    t.put(ImmutableKey.ofString("40"), "v2");
+    t.put(ImmutableKey.ofString("30"), "v3");
+    t.put(ImmutableKey.ofString("20"), "v4");
+    t.put(ImmutableKey.ofString("60"), "v5");
+    t.put(ImmutableKey.ofString("70"), "v6");
+
+    assertEquals("v0", t.get(ImmutableKey.ofString("80")));
+    assertEquals("v1", t.get(ImmutableKey.ofString("50")));
+    assertEquals("v2", t.get(ImmutableKey.ofString("40")));
+    assertEquals("v3", t.get(ImmutableKey.ofString("30")));
+    assertEquals("v4", t.get(ImmutableKey.ofString("20")));
+    assertEquals("v5", t.get(ImmutableKey.ofString("60")));
+    assertEquals("v6", t.get(ImmutableKey.ofString("70")));
+  }
+
+  private static final class AaNodeWrapper
+  {
+    private final AaTree.AaNode node;
+
+    AaNodeWrapper(AaTree.AaNode node)
     {
-      var r = t.getRoot();
-      assertEquals(1, r.getLevel());
-      assertEquals(ImmutableKey.ofString("kp"), r.getKey());
-      assertEquals(0, r.getL().getLevel());
-      assertEquals(ImmutableKey.ofString("ka"), r.getL().getKey());
-      assertEquals(0, r.getR().getLevel());
-      assertEquals(ImmutableKey.ofString("nm"), r.getR().getKey());
+      this.node = node;
+    }
+
+    AaNodeWrapper isKey(String keyString)
+    {
+      assertEquals(ImmutableKey.ofString(keyString), node.getKey());
+      return this;
+    }
+
+    AaNodeWrapper isLevel(int level)
+    {
+      assertEquals(level, node.getLevel());
+      return this;
+    }
+
+    AaNodeWrapper withL(Consumer<AaTree.AaNode> consumer)
+    {
+      consumer.accept(node.getL());
+      return this;
+    }
+
+    AaNodeWrapper withR(Consumer<AaTree.AaNode> consumer)
+    {
+      consumer.accept(node.getR());
+      return this;
     }
   }
 
-  private static ImmutableKey[] keysOf(String... keyStrings)
+  private AaNodeWrapper wrap(AaTree.AaNode node)
   {
-    var keys = new ImmutableKey[keyStrings.length];
-    for (int i = 0; i < keys.length; i++) {
-      keys[i] = ImmutableKey.ofString(keyStrings[i]);
-    }
-    return keys;
+    return new AaNodeWrapper(node);
   }
 }

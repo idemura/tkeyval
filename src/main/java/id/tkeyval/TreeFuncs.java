@@ -12,14 +12,14 @@ public final class TreeFuncs
   public static ImmutableKey[] infixWalk(Tree tree)
   {
     var walk = new ArrayList<ImmutableKey>();
-    infixWalkRec(tree.getRoot(), walk);
+    infixWalkRec(tree.root(), walk);
     return walk.toArray(new ImmutableKey[0]);
   }
 
   // Checks Binary Search Tree property using @check
-  public static void checkBst(Tree tree)
+  public static void checkBinarySearchTree(Tree tree)
   {
-    checkBstRec(tree.getRoot(), null, null);
+    checkBstRec(tree.root(), null, null);
   }
 
   private static void infixWalkRec(Tree.Node node, List<ImmutableKey> output)

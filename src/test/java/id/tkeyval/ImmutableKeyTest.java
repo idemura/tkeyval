@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ImmutableKeyTest
 {
   @Test
-  void basic()
+  void equality()
   {
     var k1 = ImmutableKey.ofString("abc");
     var k2 = ImmutableKey.ofString("abc");
