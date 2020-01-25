@@ -2,7 +2,6 @@ package id.tkeyval;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.Base64;
 
 import static id.tkeyval.Checks.check;
 
@@ -48,7 +47,8 @@ public final class ImmutableKey implements Comparable<ImmutableKey>
   @Override
   public String toString()
   {
-    return "Key(" + Base64.getEncoder().encodeToString(key) + ")";
+
+    return "Key(\"" + new String(key) + "\")";
   }
 
   @Override

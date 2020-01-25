@@ -4,42 +4,51 @@ import static id.tkeyval.Checks.check;
 
 public final class AaTree implements Tree
 {
-  static final class Node
+  static final class AaNode implements Node
   {
     private ImmutableKey key;
     private Object value;
-    private Node L;
-    private Node R;
+    private AaNode L;
+    private AaNode R;
     private int level;
 
-    Node(ImmutableKey key, Object value)
+    AaNode(ImmutableKey key, Object value)
     {
       this.key = key;
       this.value = value;
     }
 
-    ImmutableKey getKey()
+    @Override
+    public ImmutableKey getKey()
     {
       return key;
+    }
+
+    @Override
+    public AaNode getL()
+    {
+      return L;
+    }
+
+    @Override
+    public AaNode getR()
+    {
+      return R;
+    }
+
+    @Override
+    public String toString()
+    {
+      return "AaNode(" + key + " value=" + value + ")";
     }
 
     int getLevel()
     {
       return level;
     }
-
-    Node getL()
-    {
-      return L;
-    }
-
-    Node getR()
-    {
-      return R;
-    }
   }
 
-  private Node root;
+  private AaNode root;
   private int size = 0;
 
   public AaTree() {}
@@ -53,7 +62,7 @@ public final class AaTree implements Tree
   @Override
   public void put(ImmutableKey key, Object value)
   {
-    root = putRec(root, new Node(key, value));
+    root = putRec(root, new AaNode(key, value));
   }
 
   @Override
@@ -70,17 +79,19 @@ public final class AaTree implements Tree
     return null;
   }
 
+  @Override
+  public AaNode getRoot()
+  {
+    return root;
+  }
+
+  // Validate AA tree specific properties
   void validate()
   {
     validateRec(root);
   }
 
-  Node getRoot()
-  {
-    return root;
-  }
-
-  private static Node skew(Node n)
+  private static AaNode skew(AaNode n)
   {
     if (n.L != null && n.L.level == n.level) {
       var l = n.L;
@@ -91,7 +102,7 @@ public final class AaTree implements Tree
     return n;
   }
 
-  private static Node split(Node n)
+  private static AaNode split(AaNode n)
   {
     if (n.R != null && n.R.R != null && n.level == n.R.R.level) {
       var r = n.R;
@@ -103,7 +114,7 @@ public final class AaTree implements Tree
     return n;
   }
 
-  private Node putRec(Node node, Node newNode)
+  private AaNode putRec(AaNode node, AaNode newNode)
   {
     if (node == null) {
       size++;
@@ -122,7 +133,7 @@ public final class AaTree implements Tree
     return split(skew(node));
   }
 
-  private static void validateRec(Node node)
+  private static void validateRec(AaNode node)
   {
     if (node == null) {
       return;
@@ -135,7 +146,7 @@ public final class AaTree implements Tree
     check(deepR == node.R || deepR == node.R.R);
   }
 
-  private static Node getLevelMinusOne(Node start, boolean takeLeft)
+  private static AaNode getLevelMinusOne(AaNode start, boolean takeLeft)
   {
     var node = start;
     while (node != null && node.level == start.level) {
