@@ -49,7 +49,7 @@ public final class AaTree implements Tree
   }
 
   private AaNode root;
-  private int size = 0;
+  private int size;
 
   public AaTree() {}
 
@@ -62,7 +62,13 @@ public final class AaTree implements Tree
   @Override
   public void put(ImmutableKey key, Object value)
   {
-    root = putRec(root, new AaNode(key, value));
+    root = putRec(root, key, value);
+  }
+
+  @Override
+  public void remove(ImmutableKey key)
+  {
+    root = removeRec(root, key);
   }
 
   @Override
@@ -92,46 +98,116 @@ public final class AaTree implements Tree
     validateRec(root);
   }
 
-  private static AaNode skew(AaNode n)
+  private static AaNode rotateL(AaNode n)
   {
-    if (n.L != null && n.L.level == n.level) {
-      var l = n.L;
-      n.L = l.R;
-      l.R = n;
-      return l;
-    }
-    return n;
+    var l = n.L;
+    n.L = l.R;
+    l.R = n;
+    return l;
   }
 
-  private static AaNode split(AaNode n)
+  private static AaNode rotateR(AaNode n)
   {
-    if (n.R != null && n.R.R != null && n.level == n.R.R.level) {
-      var r = n.R;
-      n.R = r.L;
-      r.L = n;
-      r.level++;
-      return r;
-    }
-    return n;
+    var r = n.R;
+    n.R = r.L;
+    r.L = n;
+    return r;
   }
 
-  private AaNode putRec(AaNode node, AaNode newNode)
+  // @putRec never returns null
+  private AaNode putRec(AaNode node, ImmutableKey key, Object value)
   {
     if (node == null) {
       size++;
-      return newNode;
+      return new AaNode(key, value);
     }
-    var cmp = newNode.key.compareTo(node.key);
+    var cmp = key.compareTo(node.key);
     if (cmp == 0) {
-      node.value = newNode.value;
+      node.value = value;
       return node;
     }
     if (cmp < 0) {
-      node.L = putRec(node.L, newNode);
+      node.L = putRec(node.L, key, value);
+      // Skew: @node.L is not null here
+      if (node.level == node.L.level) {
+        node = rotateL(node);
+      }
     } else {
-      node.R = putRec(node.R, newNode);
+      node.R = putRec(node.R, key, value);
     }
-    return split(skew(node));
+    // Split
+    if (node.R != null && node.R.R != null && node.level == node.R.R.level) {
+      node = rotateR(node);
+      node.level++;
+    }
+    return node;
+  }
+
+  private AaNode removeRec(AaNode node, ImmutableKey key)
+  {
+    if (node == null) {
+      return null;
+    }
+    var cmp = key.compareTo(node.key);
+    if (cmp == 0) {
+      size--;
+      if (node.L == null) {
+        return node.R;
+      }
+      if (node.R == null) {
+        return node.L;
+      }
+      // Find successor and move it into this node
+      var s = node.R;
+      while (s.L != null) {
+        s = s.L;
+      }
+      key = s.key;
+      node.key = s.key;
+      node.value = s.value;
+    }
+
+    if (cmp < 0) {
+      node.L = removeRec(node.L, key);
+      if (node.L != null && node.level > node.L.level + 1) {
+        // This is more complicated case. We should consider 3 cases:
+        //    L            L         L
+        //   / \          / \       / \
+        // L-2 L-1      L-2  L    L-2 L-1
+        //       \            \         \
+        //       L-1          L-1       L-2
+        if (node.R != null) {
+          if (node.level == node.R.level) {
+            // Case 2
+            node.level--;
+            node = rotateR(node);
+          }
+          else {
+            // Case 1 and 3
+            node.level--;
+            if (node.R.R != null && node.level == node.R.R.level) {
+              // Case 1
+              node = rotateR(node);
+              node.level++;
+            }
+          }
+        }
+      }
+    }
+    else {
+      node.R = removeRec(node.R, key);
+      if (node.R != null && node.level > node.R.level + 1) {
+        node.level--;
+        if (node.L != null) {
+          node = rotateL(node);
+
+        }
+      }
+    }
+    if (node.L == null && node.R == null) {
+      node.level = 0;
+    }
+    return node;
   }
 
   private static void validateRec(AaNode node)

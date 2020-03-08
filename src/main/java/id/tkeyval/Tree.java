@@ -11,6 +11,7 @@ public interface Tree
 
   int size();
   void put(ImmutableKey key, Object value);
+  void remove(ImmutableKey key);
   Object get(ImmutableKey key);
   Node root();
   void validate();

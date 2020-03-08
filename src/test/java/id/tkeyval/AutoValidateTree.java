@@ -23,6 +23,13 @@ public class AutoValidateTree implements Tree
   }
 
   @Override
+  public void remove(ImmutableKey key)
+  {
+    tree.remove(key);
+    tree.validate();
+  }
+
+  @Override
   public Object get(ImmutableKey key)
   {
     return tree.get(key);
